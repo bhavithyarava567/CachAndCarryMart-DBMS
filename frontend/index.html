@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cash & Carry Mart Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>🛒 Cash & Carry Mart</h1>
+      <ul>
+        <li><a href="index.html" class="active">Dashboard</a></li>
+        <li><a href="admin.html">SQL Console</a></li>
+      </ul>
+    </nav>
+    <h2>Live Database Dashboard</h2>
+  </header>
+
+  <section class="charts">
+    <div class="chart-container">
+      <h3>Revenue by Payment Method</h3>
+      <canvas id="paymentChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Top 3 Sold Products</h3>
+      <canvas id="productChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Monthly Sales</h3>
+      <canvas id="salesChart"></canvas>
+    </div>
+  </section>
+
+  <section class="tables">
+    <h3>Customer & Membership Details</h3>
+    <table id="customerTable">
+      <tr><th>ID</th><th>Name</th><th>Membership</th><th>Discount (%)</th></tr>
+    </table>
+
+    <h3>Recent Orders</h3>
+    <table id="orderTable">
+      <tr><th>Order ID</th><th>Customer</th><th>Employee</th><th>Total (₹)</th></tr>
+    </table>
+  </section>
+
+  <section class="actions">
+    <button onclick="window.location.href='admin.html'">⚙️ Open SQL Console</button>
+  </section>
+
+  <footer>
+    <p>Developed by Bhavith Yarava | DBMS Mini Project | PES University</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

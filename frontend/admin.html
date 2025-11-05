@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBMS SQL Console</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>🧩 DBMS SQL Console</h1>
+      <ul>
+        <li><a href="index.html">← Back to Dashboard</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="console">
+    <h2>Run SQL Commands (DML, DDL, Procedures, Functions)</h2>
+    <textarea id="queryBox" placeholder="Enter your SQL query here..." rows="6"></textarea>
+    <br>
+    <button id="runBtn">▶️ Run Query</button>
+    <div id="outputContainer">
+      <div id="errorBox" class="error-message" style="display: none;"></div>
+      <div id="tableContainer"></div>
+    </div>
+  </section>
+
+  <script>
+  function createTable(data) {
+    if (!Array.isArray(data) || data.length === 0) {
+      return '<p>No results found</p>';
+    }
+
+    const headers = Object.keys(data[0]);
+    let html = '<table class="result-table"><thead><tr>';
+    
+    // Create headers
+    headers.forEach(header => {
+      html += `<th>${header}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    
+    // Create rows
+    data.forEach(row => {
+      html += '<tr>';
+      headers.forEach(header => {
+        html += `<td>${row[header] !== null ? row[header] : 'NULL'}</td>`;
+      });
+      html += '</tr>';
+    });
+    
+    html += '</tbody></table>';
+    return html;
+  }
+
+  document.getElementById("runBtn").addEventListener("click", async () => {
+    const query = document.getElementById("queryBox").value.trim();
+    if (!query) return alert("Please enter a query!");
+
+    const errorBox = document.getElementById("errorBox");
+    const tableContainer = document.getElementById("tableContainer");
+    
+    try {
+      const res = await fetch("http://localhost:5000/api/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      });
+
+      const data = await res.json();
+      
+      if (data.error) {
+        errorBox.textContent = "❌ Error: " + data.error;
+        errorBox.style.display = "block";
+        tableContainer.innerHTML = "";
+      } else {
+        errorBox.style.display = "none";
+        tableContainer.innerHTML = createTable(data.results);
+      }
+    } catch (err) {
+      errorBox.textContent = "❌ Network Error: " + err.message;
+      errorBox.style.display = "block";
+      tableContainer.innerHTML = "";
+    }
+  });
+  </script>
+</body>
+</html>
