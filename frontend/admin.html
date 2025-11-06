@@ -5,43 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DBMS SQL Console</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
   <header>
-    <nav>
-      <h1>🧩 DBMS SQL Console</h1>
-      <ul>
-        <li><a href="index.html">← Back to Dashboard</a></li>
+    <nav class="main-nav">
+      <div class="nav-left">
+        <h1 class="brand"><i class="fas fa-terminal"></i> DBMS SQL Console</h1>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+      <ul class="nav-right">
+        <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="manage.html"><i class="fas fa-database"></i> Manage Data</a></li>
       </ul>
     </nav>
   </header>
 
-  <section class="console">
-    <h2>Run SQL Commands (DML, DDL, Procedures, Functions)</h2>
-    <textarea id="queryBox" placeholder="Enter your SQL query here..." rows="6"></textarea>
-    <br>
-    <button id="runBtn">▶️ Run Query</button>
-    <div id="outputContainer">
-      <div id="errorBox" class="error-message" style="display: none;"></div>
-      <div id="tableContainer"></div>
+  <section class="console-page">
+    <div class="console-container">
+      <h2>Run SQL Commands (DML, DDL, Procedures, Functions)</h2>
+
+      <div class="quick-queries">
+        <h3>Quick Queries:</h3>
+        <div class="query-buttons">
+          <button data-query="SELECT * FROM Customer;">Show All Customers</button>
+          <button data-query="SELECT ProductName, Price FROM Product ORDER BY Price DESC LIMIT 5;">Top 5 Most Expensive Products</button>
+          <button data-query="SELECT EmployeeID, COUNT(OrderID) AS TotalOrders FROM `Order` GROUP BY EmployeeID ORDER BY TotalOrders DESC;">Employee Order Counts</button>
+          <button data-query="SELECT Type, AVG(DiscountRate) AS AverageDiscount FROM Membership GROUP BY Type;">Average Discount by Membership</button>
+        </div>
+      </div>
+
+      <textarea id="queryBox" placeholder="Enter your SQL query here..." rows="10"></textarea>
+      <button id="runBtn">▶️ Run Query</button>
+
+      <div id="outputContainer">
+        <div id="errorBox" class="error-message" style="display: none;"></div>
+        <div id="tableContainer"></div>
+      </div>
     </div>
   </section>
+
+  <footer>
+    <p>Developed by Bhavith Kumar Yarava and B A Saharsh | DBMS Mini Project | PES University</p>
+  </footer>
 
   <script>
   function createTable(data) {
     if (!Array.isArray(data) || data.length === 0) {
-      return '<p>No results found</p>';
+      return '<p class="no-results">No results found</p>';
     }
 
     const headers = Object.keys(data[0]);
     let html = '<table class="result-table"><thead><tr>';
-    
+
     // Create headers
     headers.forEach(header => {
       html += `<th>${header}</th>`;
     });
     html += '</tr></thead><tbody>';
-    
+
     // Create rows
     data.forEach(row => {
       html += '<tr>';
@@ -50,18 +73,23 @@
       });
       html += '</tr>';
     });
-    
+
     html += '</tbody></table>';
     return html;
   }
 
   document.getElementById("runBtn").addEventListener("click", async () => {
     const query = document.getElementById("queryBox").value.trim();
-    if (!query) return alert("Please enter a query!");
-
     const errorBox = document.getElementById("errorBox");
     const tableContainer = document.getElementById("tableContainer");
-    
+
+    if (!query) {
+      errorBox.textContent = "❌ Please enter a query!";
+      errorBox.style.display = "block";
+      tableContainer.innerHTML = "";
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/api/execute", {
         method: "POST",
@@ -69,21 +97,54 @@
         body: JSON.stringify({ query })
       });
 
-      const data = await res.json();
-      
+  const data = await res.json();
+
       if (data.error) {
         errorBox.textContent = "❌ Error: " + data.error;
         errorBox.style.display = "block";
         tableContainer.innerHTML = "";
       } else {
         errorBox.style.display = "none";
-        tableContainer.innerHTML = createTable(data.results);
+        // Normalize common shapes:
+        // - Single SELECT: array of row objects
+        // - Multi-statement: array containing arrays/packets => pick last array of row objects
+        // - Non-SELECT: object with message
+        function normalizeToRows(payload) {
+          if (Array.isArray(payload)) {
+            // Case: already an array of row objects
+            if (payload.length && !Array.isArray(payload[0]) && typeof payload[0] === 'object') return payload;
+            // Case: array of mixed results, choose last array of objects
+            for (let i = payload.length - 1; i >= 0; i--) {
+              const part = payload[i];
+              if (Array.isArray(part) && part.length && typeof part[0] === 'object') return part;
+            }
+            return [];
+          }
+          if (payload && Array.isArray(payload.results)) return payload.results;
+          return [];
+        }
+        const rows = normalizeToRows(data);
+        if (rows.length > 0) {
+          tableContainer.innerHTML = createTable(rows);
+        } else if (data && data.message) {
+          tableContainer.innerHTML = `<div class="info-message">${data.message}</div>`;
+        } else {
+          tableContainer.innerHTML = createTable([]);
+        }
       }
     } catch (err) {
       errorBox.textContent = "❌ Network Error: " + err.message;
       errorBox.style.display = "block";
       tableContainer.innerHTML = "";
     }
+  });
+
+  // Quick Query Buttons
+  document.querySelectorAll('.query-buttons button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.getElementById('queryBox').value = button.dataset.query;
+      // User manually runs query
+    });
   });
   </script>
 </body>
