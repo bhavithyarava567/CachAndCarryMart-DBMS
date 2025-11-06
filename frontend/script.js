@@ -1,12 +1,41 @@
 const API = "http://localhost:5000/api";
 
 document.addEventListener("DOMContentLoaded", () => {
+  // responsive nav toggle
+  document.querySelectorAll('.nav-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const navRight = document.querySelector('.nav-right');
+      if (navRight) navRight.classList.toggle('open');
+    });
+  });
   loadRevenue();
   loadProducts();
   loadSales();
   loadCustomers();
   loadOrders();
 });
+
+function showLoading(elementId) {
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+  }
+}
+
+function hideLoading(elementId) {
+  const el = document.getElementById(elementId);
+  if (el) {
+    const spinner = el.querySelector('.loading-spinner');
+    if (spinner) spinner.remove();
+  }
+}
+
+function showError(elementId, message) {
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.innerHTML = `<div class="error-message">${message}</div>`;
+  }
+}
 
 async function loadRevenue() {
   const res = await fetch(`${API}/revenue`);

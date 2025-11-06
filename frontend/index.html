@@ -5,18 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cash & Carry Mart Dashboard</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Use Inter for a cleaner modern UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
-    <nav>
-      <h1>🛒 Cash & Carry Mart</h1>
-      <ul>
-        <li><a href="index.html" class="active">Dashboard</a></li>
-        <li><a href="admin.html">SQL Console</a></li>
+    <nav class="main-nav">
+      <div class="nav-left">
+        <h1 class="brand">🛒 Cash & Carry Mart</h1>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+      <ul class="nav-right">
+        <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="manage.html"><i class="fas fa-database"></i> Manage Data</a></li>
+        <li><a href="admin.html"><i class="fas fa-terminal"></i> SQL Console</a></li>
       </ul>
     </nav>
-    <h2>Live Database Dashboard</h2>
+
+    <div class="hero">
+      <div class="container">
+        <h2>Live Database Dashboard</h2>
+        <p class="subtitle">Insights: revenue, top products and monthly trends — refreshed from your DB.</p>
+      </div>
+    </div>
   </header>
 
   <section class="charts">
@@ -37,21 +50,36 @@
   <section class="tables">
     <h3>Customer & Membership Details</h3>
     <table id="customerTable">
-      <tr><th>ID</th><th>Name</th><th>Membership</th><th>Discount (%)</th></tr>
+      <tr>
+        <th><i class="fas fa-id-card"></i> ID</th>
+        <th><i class="fas fa-user"></i> Name</th>
+        <th><i class="fas fa-star"></i> Membership</th>
+        <th><i class="fas fa-percent"></i> Discount (%)</th>
+      </tr>
     </table>
 
     <h3>Recent Orders</h3>
     <table id="orderTable">
-      <tr><th>Order ID</th><th>Customer</th><th>Employee</th><th>Total (₹)</th></tr>
+      <tr>
+        <th><i class="fas fa-hashtag"></i> Order ID</th>
+        <th><i class="fas fa-user"></i> Customer</th>
+        <th><i class="fas fa-user-tie"></i> Employee</th>
+        <th><i class="fas fa-rupee-sign"></i> Total (₹)</th>
+      </tr>
     </table>
   </section>
 
   <section class="actions">
-    <button onclick="window.location.href='admin.html'">⚙️ Open SQL Console</button>
+    <button onclick="window.location.href='manage.html'">
+      <i class="fas fa-database"></i> Manage Data
+    </button>
+    <button onclick="window.location.href='admin.html'">
+      <i class="fas fa-cogs"></i> Open SQL Console
+    </button>
   </section>
 
   <footer>
-    <p>Developed by Bhavith Yarava | DBMS Mini Project | PES University</p>
+    <p>Developed by Bhavith Kumar Yarava and B A Saharsh | DBMS Mini Project | PES University</p>
   </footer>
 
   <script src="script.js"></script>

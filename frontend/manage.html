@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Data | Cash & Carry Mart</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="main-nav">
+      <div class="nav-left">
+        <h1 class="brand">🛠 Manage Data - Cash & Carry Mart</h1>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+      <ul class="nav-right">
+        <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="admin.html"><i class="fas fa-terminal"></i> SQL Console</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="manage-section">
+    <h2>Perform CRUD Operations</h2>
+    <p>Use the forms below to add, update, or delete records in your database.</p>
+
+    <!-- CREATE FORM -->
+    <section class="form-section">
+      <h3><i class="fas fa-plus-circle"></i> Add New Product</h3>
+      <form id="addForm">
+        <input type="text" id="productName" placeholder="Product Name" required>
+        <input type="number" id="price" placeholder="Price (₹)" required>
+        <input type="number" id="categoryId" placeholder="Category ID" required>
+        <input type="number" id="supplierId" placeholder="Supplier ID" required>
+        <button type="submit">Add Product</button>
+      </form>
+    </section>
+
+    <!-- UPDATE FORM -->
+    <section class="form-section">
+      <h3><i class="fas fa-edit"></i> Update Product Price</h3>
+      <form id="updateForm">
+        <input type="number" id="updateProductId" placeholder="Product ID" required>
+        <input type="number" id="newPrice" placeholder="New Price (₹)" required>
+        <button type="submit">Update</button>
+      </form>
+    </section>
+
+    <!-- RENAME FORM -->
+    <section class="form-section">
+      <h3><i class="fas fa-tag"></i> Rename Product</h3>
+      <form id="renameForm" class="form-grid">
+        <label>
+          Choose Product
+          <select id="renameProductSelect"></select>
+        </label>
+        <label>
+          Or enter Product ID
+          <input type="number" id="renameProductId" placeholder="e.g. 3">
+        </label>
+        <label class="full">
+          New Product Name
+          <input type="text" id="renameProductName" placeholder="New Product Name" required>
+        </label>
+        <div class="form-actions full">
+          <button type="submit">Rename</button>
+          <button type="button" id="refreshRenameList" class="secondary-btn">Refresh List</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- DELETE FORM -->
+    <section class="form-section">
+      <h3><i class="fas fa-trash-alt"></i> Delete Product</h3>
+      <form id="deleteForm">
+        <input type="number" id="deleteProductId" placeholder="Product ID" required>
+        <button type="submit">Delete</button>
+      </form>
+    </section>
+
+    <!-- VIEW FORM -->
+    <section class="form-section">
+      <h3><i class="fas fa-eye"></i> View Products</h3>
+      <button id="viewBtn">Fetch Products</button>
+      <table id="productTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Price</th><th>Category ID</th><th>Supplier ID</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <div id="messageBox"></div>
+
+    <button onclick="window.location.href='index.html'" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </button>
+
+    <hr style="margin:40px 0; border:none; border-top:1px solid #e0e0e0" />
+    <h2>Quick Create (Customers & Orders)</h2>
+    <div class="admin-forms">
+      <!-- Add Customer Card -->
+      <div class="form-card">
+        <h3><i class="fas fa-user-plus"></i> Add New Customer</h3>
+        <form id="addCustomerForm" class="form-grid">
+          <label>
+            Name
+            <input id="cName" type="text" placeholder="Customer name" required />
+          </label>
+          <label>
+            Phone
+            <input id="cPhone" type="tel" placeholder="98765xxxxx" />
+          </label>
+          <label>
+            Email
+            <input id="cEmail" type="email" placeholder="name@example.com" />
+          </label>
+          <label class="full">
+            Address
+            <input id="cAddress" type="text" placeholder="City / Street / Zip" />
+          </label>
+          <label>
+            Membership
+            <select id="cMembership"></select>
+          </label>
+          <div class="form-actions full">
+            <button type="submit" class="primary-btn"><i class="fas fa-plus-circle"></i> Add Customer</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Create Order Card -->
+      <div class="form-card">
+        <h3><i class="fas fa-file-invoice-dollar"></i> Create New Order</h3>
+        <form id="orderForm" class="form-grid">
+          <label>
+            Customer
+            <select id="oCustomer" required></select>
+          </label>
+          <label>
+            Employee
+            <select id="oEmployee"></select>
+          </label>
+          <label>
+            Order Date
+            <input id="oDate" type="date" required />
+          </label>
+          <label>
+            Payment Method
+            <select id="oMethod" required>
+              <option>Cash</option>
+              <option>Card</option>
+              <option>UPI</option>
+              <option>NetBanking</option>
+            </select>
+          </label>
+
+          <div class="full">
+            <h4 style="margin:12px 0 8px">Items</h4>
+            <div id="itemsContainer"></div>
+            <button id="addItemBtn" type="button" class="secondary-btn" style="margin-top:8px"><i class="fas fa-plus"></i> Add Item</button>
+          </div>
+
+          <div class="order-summary full">
+            <div><strong>Price:</strong> ₹ <span id="orderGross">0.00</span></div>
+            <div><strong>Discount:</strong> <span id="orderDiscountRate">0</span>%</div>
+            <div><strong>Final:</strong> ₹ <span id="orderNet">0.00</span></div>
+          </div>
+
+          <div class="form-actions full">
+            <button type="submit" class="primary-btn"><i class="fas fa-check"></i> Create Order</button>
+          </div>
+        </form>
+        <div id="orderMsg" class="info-message" style="display:none"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Developed by Bhavith Kumar Yarava and B A Saharsh | DBMS Mini Project | PES University</p>
+  </footer>
+  <script>
+    // Quick Create logic moved from admin.html and cleaned up
+    (function(){
+      const EXEC_API = "http://localhost:5000/api/execute";
+      const qState = { memberships: [], customers: [], employees: [], products: [] };
+      const infoBox = (msg, type='success') => { const box = document.getElementById('orderMsg'); if (!box) return; box.style.display='block'; box.className='info-message '+type; box.textContent=msg; setTimeout(()=>box.style.display='none',4000); };
+      const esc = s => String(s||'').replace(/'/g,"''");
+      async function execQ(query){ const res = await axios.post(EXEC_API,{query}); return res.data; }
+      async function loadQOptions(){ try { const [mem,cust,emp,prod] = await Promise.all([
+          execQ("SELECT MembershipID, Type, DiscountRate FROM Membership ORDER BY DiscountRate DESC;"),
+          execQ("SELECT c.CustomerID, c.Name, m.DiscountRate, m.ExpiryDate FROM Customer c LEFT JOIN Membership m ON c.MembershipID = m.MembershipID ORDER BY c.Name;"),
+          execQ("SELECT EmployeeID, Name FROM Employee ORDER BY Name;"),
+          execQ("SELECT ProductID, ProductName, Price FROM Product ORDER BY ProductName;")
+        ]); qState.memberships = Array.isArray(mem)?mem:(mem.results||[]); qState.customers = Array.isArray(cust)?cust:(cust.results||[]); qState.employees = Array.isArray(emp)?emp:(emp.results||[]); qState.products = Array.isArray(prod)?prod:(prod.results||[]);
+        const memSel = document.getElementById('cMembership'); if (memSel) memSel.innerHTML = '<option value="">None</option>' + qState.memberships.map(m=>`<option value="${m.MembershipID}">${m.Type} (${m.DiscountRate}%)</option>`).join('');
+        const custSel = document.getElementById('oCustomer'); if (custSel) custSel.innerHTML = '<option value="" disabled selected>Select customer</option>' + qState.customers.map(c=>`<option value="${c.CustomerID}">${c.Name}</option>`).join('');
+        const empSel = document.getElementById('oEmployee'); if (empSel) empSel.innerHTML = '<option value="">None</option>' + qState.employees.map(e=>`<option value="${e.EmployeeID}">${e.Name}</option>`).join('');
+      } catch(e){ console.error(e); } }
+      function today(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+      function price(pid){ const p=qState.products.find(x=>String(x.ProductID)===String(pid)); return p?Number(p.Price):0; }
+      function updateOrderTotals(){
+        // compute gross
+        let gross=0; document.querySelectorAll('.item-row').forEach(r=>{ const pid=r.querySelector('.item-product').value; const qty=Number(r.querySelector('.item-qty').value||0); const pr=price(pid); const sub=pr*qty; r.querySelector('.item-price').textContent=`₹${pr.toFixed(2)}`; r.querySelector('.item-sub').textContent=`₹${sub.toFixed(2)}`; gross+=sub; });
+        // figure discount
+        const custSel=document.getElementById('oCustomer'); const customerId=custSel?custSel.value:''; const todayStr=new Date().toISOString().slice(0,10);
+        let rate=0; if(customerId){ const c=qState.customers.find(x=>String(x.CustomerID)===String(customerId)); if(c){ const exp=(c.ExpiryDate||''); if(exp && exp>=todayStr){ rate=Number(c.DiscountRate||0); } } }
+        // update UI
+        const gEl=document.getElementById('orderGross'); if(gEl) gEl.textContent=gross.toFixed(2);
+        const rEl=document.getElementById('orderDiscountRate'); if(rEl) rEl.textContent=Number(rate).toFixed(2);
+        const nEl=document.getElementById('orderNet'); if(nEl) nEl.textContent=(Math.round((gross*(1-rate/100))*100)/100).toFixed(2);
+      }
+      function itemRow(){ const opts=qState.products.map(p=>`<option value="${p.ProductID}">${p.ProductName} (₹${Number(p.Price).toFixed(2)})</option>`).join(''); const d=document.createElement('div'); d.className='item-row'; d.innerHTML=`<select class="item-product">${opts}</select><input type="number" min="1" value="1" class="item-qty"/><div class="item-price">₹0.00</div><div class="item-sub">₹0.00</div><button type="button" class="remove-btn" title="Remove"><i class="fas fa-times"></i></button>`; d.querySelector('.item-product').addEventListener('change',updateOrderTotals); d.querySelector('.item-qty').addEventListener('input',updateOrderTotals); d.querySelector('.remove-btn').addEventListener('click',()=>{d.remove(); updateOrderTotals();}); return d; }
+      function ensureFirstItem(){ const c=document.getElementById('itemsContainer'); if(c && c.children.length===0){ c.appendChild(itemRow()); updateOrderTotals(); } }
+      // init
+      const dateEl=document.getElementById('oDate'); if(dateEl) dateEl.value=today();
+      loadQOptions().then(()=>ensureFirstItem());
+  const addBtn=document.getElementById('addItemBtn'); if(addBtn) addBtn.addEventListener('click',()=>{ const c=document.getElementById('itemsContainer'); c.appendChild(itemRow()); updateOrderTotals(); });
+  const custSelEl=document.getElementById('oCustomer'); if(custSelEl) custSelEl.addEventListener('change', updateOrderTotals);
+  const dateSelEl=document.getElementById('oDate'); if(dateSelEl) dateSelEl.addEventListener('change', updateOrderTotals);
+      const custForm=document.getElementById('addCustomerForm'); if(custForm) custForm.addEventListener('submit', async e=>{ e.preventDefault(); const name=document.getElementById('cName').value.trim(); const phone=document.getElementById('cPhone').value.trim(); const email=document.getElementById('cEmail').value.trim(); const address=document.getElementById('cAddress').value.trim(); const mem=document.getElementById('cMembership').value.trim(); if(!name){ infoBox('Name required','error'); return;} const q=`INSERT INTO Customer (Name, Phone, Email, Address, MembershipID) VALUES ('${esc(name)}', ${phone?`'${esc(phone)}'`:'NULL'}, ${email?`'${esc(email)}'`:'NULL'}, ${address?`'${esc(address)}'`:'NULL'}, ${mem?Number(mem):'NULL'});`; try { const data=await execQ(q); if(data.error) throw new Error(data.error); infoBox('✅ Customer added'); loadQOptions(); custForm.reset(); } catch(err){ infoBox('❌ '+err.message,'error'); } });
+  // (Old order submit handler removed; replaced by enhanced discount-aware version below)
+      const orderForm=document.getElementById('orderForm'); if(orderForm) orderForm.addEventListener('submit', async e=>{ e.preventDefault(); const cust=document.getElementById('oCustomer').value; const emp=document.getElementById('oEmployee').value; const oDate=document.getElementById('oDate').value; const method=document.getElementById('oMethod').value; const rows=Array.from(document.querySelectorAll('.item-row')).map(r=>({ pid:r.querySelector('.item-product').value, qty:Number(r.querySelector('.item-qty').value||0) })).filter(r=>r.pid && r.qty>0); if(!cust) return infoBox('Select a customer','error'); if(!oDate) return infoBox('Select date','error'); if(rows.length===0) return infoBox('Add items','error'); const values=rows.map(r=>`(@oid, ${Number(r.pid)}, ${Number(r.qty)}, ${Number(r.qty)} * (SELECT Price FROM Product WHERE ProductID=${Number(r.pid)}))`).join(',');
+        // Transaction now applies membership discount if membership exists AND not expired
+        const q=`START TRANSACTION;
+SET @cust = ${Number(cust)};
+INSERT INTO \`Order\` (OrderDate, TotalAmount, CustomerID, EmployeeID) VALUES ('${esc(oDate)}', 0, @cust, ${emp?Number(emp):'NULL'});
+SET @oid = LAST_INSERT_ID();
+INSERT INTO Order_Item (OrderID, ProductID, Quantity, SubTotal) VALUES ${values};
+SET @gross = (SELECT SUM(SubTotal) FROM Order_Item WHERE OrderID=@oid);
+SET @discRate = (SELECT CASE WHEN m.MembershipID IS NOT NULL AND m.ExpiryDate >= CURDATE() THEN m.DiscountRate ELSE 0 END
+                 FROM Customer c LEFT JOIN Membership m ON c.MembershipID = m.MembershipID WHERE c.CustomerID=@cust);
+SET @net = ROUND(@gross * (1 - COALESCE(@discRate,0)/100),2);
+UPDATE \`Order\` SET TotalAmount = @net WHERE OrderID=@oid;
+INSERT INTO Payment (OrderID, Method, AmountPaid, PaymentDate) VALUES (@oid, '${esc(method)}', @net, '${esc(oDate)}');
+COMMIT;
+SELECT @oid AS OrderID, @gross AS GrossAmount, @discRate AS DiscountRate, @net AS NetAmount;`;
+  try { const data=await execQ(q); if(data.error) throw new Error(data.error); let last=[]; if(Array.isArray(data)) for(let i=data.length-1;i>=0;i--) if(Array.isArray(data[i])){ last=data[i]; break;} const r= last[0]; const msg= r? `✅ Price ₹${Number(r.GrossAmount).toFixed(2)} | Discount ${Number(r.DiscountRate).toFixed(2)}% | Final ₹${Number(r.NetAmount).toFixed(2)}`: '✅ Order created'; infoBox(msg); document.getElementById('itemsContainer').innerHTML=''; ensureFirstItem(); updateOrderTotals(); } catch(err){ infoBox('❌ '+err.message,'error'); } });
+    })();
+
+    // Product CRUD logic
+    (function(){
+      const API_URL = "http://localhost:5000/api/execute";
+      const REST = {
+        create: async (p) => axios.post('http://localhost:5000/api/products', p),
+        update: async (id, payload) => axios.put(`http://localhost:5000/api/products/${id}`, payload),
+        remove: async (id, cascade=false) => axios.delete(`http://localhost:5000/api/products/${id}?cascade=${cascade}`),
+        getOne: async (id) => axios.get(`http://localhost:5000/api/products/${id}`),
+        list: async (limit=50) => axios.get(`http://localhost:5000/api/products?limit=${limit}`)
+      };
+      const msgBox = document.getElementById("messageBox");
+      const showMessage = (msg, type) => { msgBox.textContent = msg; msgBox.className = type; setTimeout(()=> msgBox.textContent = "", 4000); };
+      async function sendQuery(query, successMsg){ try { await axios.post(API_URL,{query}); showMessage(successMsg,'success'); } catch(err){ showMessage("❌ Error: "+ (err.response?.data?.error || err.message),'error'); } }
+      document.getElementById("addForm").addEventListener("submit", async (e)=>{ e.preventDefault();
+        try {
+          const resp = await REST.create({ ProductName: productName.value, Price: Number(price.value), CategoryID: Number(categoryId.value), SupplierID: Number(supplierId.value) });
+          const p = resp.data?.product || { ProductName: productName.value, Price: Number(price.value) };
+          showMessage(`✅ Product added: ${p.ProductName} (ID ${p.ProductID || resp.data?.productId || '?'}) at ₹${Number(p.Price).toFixed(2)}`,'success');
+          // Refresh views
+          document.getElementById('viewBtn').click();
+          // Refresh rename list
+          if (typeof loadRenameList === 'function') loadRenameList();
+          (e.target).reset();
+        }
+        catch(err){ showMessage("❌ Error: "+ (err.response?.data?.error || err.message),'error'); }
+      });
+      document.getElementById("updateForm").addEventListener("submit", async (e)=>{ e.preventDefault();
+        try { await REST.update(Number(updateProductId.value), { Price: Number(newPrice.value) }); showMessage("✅ Product price updated!",'success'); }
+        catch(err){ showMessage("❌ Error: "+ (err.response?.data?.error || err.message),'error'); }
+      });
+      async function loadRenameList(){
+        try {
+          const res = await REST.list(200);
+          const data = res.data || [];
+          const sel = document.getElementById('renameProductSelect');
+          if (!sel) return;
+          sel.innerHTML = '<option value="" selected>-- Select Product --</option>' + data.map(p=>`<option value="${p.ProductID}">${p.ProductID} - ${p.ProductName}</option>`).join('');
+        } catch(err){ console.error('Failed to load products for rename', err); }
+      }
+      loadRenameList();
+      const refreshBtn = document.getElementById('refreshRenameList');
+      if (refreshBtn) refreshBtn.addEventListener('click', loadRenameList);
+      document.getElementById('renameProductSelect').addEventListener('change', (e)=>{
+        document.getElementById('renameProductId').value = e.target.value || '';
+      });
+      document.getElementById("renameForm").addEventListener("submit", async (e)=>{ e.preventDefault();
+        const fallbackId = document.getElementById('renameProductId').value;
+        const selectId = document.getElementById('renameProductSelect').value;
+        const id = Number(selectId || fallbackId);
+        const newName = (renameProductName.value || '').trim();
+        if (!id || !newName) { showMessage('❌ Provide Product (select or ID) and new name','error'); return; }
+        try {
+          const res = await REST.getOne(id);
+          const current = res.data?.ProductName || '';
+          if (current.trim() === newName) { showMessage('ℹ️ Name unchanged','error'); return; }
+          await REST.update(id, { ProductName: newName });
+          showMessage('✅ Product renamed!','success');
+          document.getElementById('viewBtn').click();
+          loadRenameList();
+          renameForm.reset();
+        } catch(err){
+          const msg = err.response?.data?.error || err.message;
+          if (err.response?.status === 404) {
+            showMessage('❌ Product ID not found','error');
+          } else {
+            showMessage('❌ Error: '+ msg,'error');
+          }
+        }
+      });
+      document.getElementById("deleteForm").addEventListener("submit", async (e)=>{ e.preventDefault();
+        const id = Number(deleteProductId.value);
+        try {
+          await REST.remove(id, false);
+          showMessage("🗑️ Product deleted successfully!",'success');
+        } catch(err){
+          if (err.response && err.response.status === 409) {
+            // Ask user if they want cascade
+            const ok = confirm('This product is referenced by existing orders. Delete related order items too?');
+            if (ok) {
+              try { await REST.remove(id, true); showMessage('🗑️ Product and related items deleted.','success'); }
+              catch(e2){ showMessage('❌ Error: '+ (e2.response?.data?.error || e2.message),'error'); }
+            } else {
+              showMessage('ℹ️ Delete cancelled (product is referenced).','error');
+            }
+          } else {
+            showMessage("❌ Error: "+ (err.response?.data?.error || err.message),'error');
+          }
+        }
+      });
+      document.getElementById("viewBtn").addEventListener("click", async ()=>{
+        try {
+          const res = await REST.list(50);
+          const data = res.data || [];
+          const tbody = document.querySelector('#productTable tbody');
+          tbody.innerHTML='';
+          data.forEach(row=>{
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td>${row.ProductID}</td><td>${row.ProductName}</td><td>₹${row.Price}</td><td>${row.CategoryID}</td><td>${row.SupplierID}</td>`;
+            tbody.appendChild(tr);
+          });
+          showMessage("📋 Products loaded successfully!",'success');
+        } catch(err){ showMessage("❌ Error loading products: "+(err.response?.data?.error || err.message),'error'); }
+      });
+    })();
+  </script>
+
+  <!-- Manage page uses central styles in style.css (no inline style) -->
+</body>
+</html>
