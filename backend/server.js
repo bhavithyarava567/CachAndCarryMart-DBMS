@@ -228,6 +228,89 @@ app.post('/api/products', (req, res) => {
   });
 });
 
+app.put('/api/products/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { ProductName, Price, CategoryID, SupplierID } = req.body;
+  
+  // Build dynamic update query based on provided fields
+  const updates = [];
+  const values = [];
+  
+  if (ProductName !== undefined) {
+    updates.push('ProductName = ?');
+    values.push(ProductName);
+  }
+  if (Price !== undefined) {
+    updates.push('Price = ?');
+    values.push(Price);
+  }
+  if (CategoryID !== undefined) {
+    updates.push('CategoryID = ?');
+    values.push(CategoryID);
+  }
+  if (SupplierID !== undefined) {
+    updates.push('SupplierID = ?');
+    values.push(SupplierID);
+  }
+  
+  if (updates.length === 0) {
+    return res.status(400).json({ error: 'No fields to update' });
+  }
+  
+  values.push(id);
+  const q = `UPDATE Product SET ${updates.join(', ')} WHERE ProductID = ?`;
+  
+  db.query(q, values, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.json({ message: 'Product updated successfully' });
+  });
+});
+
+app.delete('/api/products/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const cascade = req.query.cascade === 'true';
+  
+  if (cascade) {
+    // Delete related order items first, then the product
+    const deleteOrderItems = 'DELETE FROM Order_Item WHERE ProductID = ?';
+    const deleteProduct = 'DELETE FROM Product WHERE ProductID = ?';
+    
+    db.query(deleteOrderItems, [id], (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      
+      db.query(deleteProduct, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'Product not found' });
+        }
+        res.json({ message: 'Product and related items deleted successfully' });
+      });
+    });
+  } else {
+    // Try to delete the product directly
+    const q = 'DELETE FROM Product WHERE ProductID = ?';
+    db.query(q, [id], (err, result) => {
+      if (err) {
+        // Check if it's a foreign key constraint error
+        if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+          return res.status(409).json({ 
+            error: 'Cannot delete product: it is referenced by existing orders',
+            code: 'FOREIGN_KEY_CONSTRAINT'
+          });
+        }
+        return res.status(500).json({ error: err.message });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      res.json({ message: 'Product deleted successfully' });
+    });
+  }
+});
+
 // ✅ Start Server
 const PORT = 5000;
 app.listen(PORT, () =>
