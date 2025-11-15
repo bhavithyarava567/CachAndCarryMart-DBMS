@@ -4,7 +4,7 @@ import mysql from "mysql2";
 export const db = mysql.createConnection({
   host: "localhost",       // keep as localhost if MySQL runs locally
   user: "root",            // your MySQL username
-  password: "Saharsh_1234",  // 🔒 replace with your real MySQL password
+  password: "Your_Password",  // 🔒 replace with your real MySQL password
   database: "CashAndCarryMart",
   multipleStatements: true,    // must match your .sql database name
 });
